@@ -28,24 +28,27 @@ const questions = [
   }
 ];
 
-function Result(){
+function Result({correct}){
   return(
     <div className="result">
-      <p>Вы отгадали 3 ответа из 5</p>
-      <button>Начать заново</button>
+      <p>Вы отгадали {correct} ответа из {questions.length}</p>
+      <a href="/">Начать заново</a>
     </div>
   );
 }
 
-function Quiz({data}){
+function Quiz({step, data, onClickAnswer}){
+  const percent = Math.round(step / questions.length * 100);
   return(
     <div className="quizBlock">
-      <div className="progress"></div>
+      <div className="progress">
+        <div className="progress__line" style={{width: `${percent}%`}}></div>
+      </div>
       <div className="quizBlock__inner">
         <h2>{data.question}</h2>
         <ul>
           {data.answers.map((text, index) => (
-            <li key={index}>{text}</li>
+            <li key={index} onClick={() => onClickAnswer(index)}>{text}</li>
           ))}
         </ul>
       </div>
@@ -55,11 +58,23 @@ function Quiz({data}){
 
 function App() {
   const [step, setStep] = React.useState(0);
+  const [correct, setCorrect] = React.useState(0);
   const question = questions[step];
+  const onClickAnswer = (index) => {
+    setStep(step + 1)
+    if(index === question.correct){
+      setCorrect(correct + 1)
+    }
+  }
+  
 
   return (
     <div className="App">
-      <Quiz data={question}/>
+      {
+        step != questions.length ? (<Quiz step={step} data={question} onClickAnswer={onClickAnswer}/>)
+        : ( <Result correct={correct}/> )
+      }
+      
     </div>
   );
 }
